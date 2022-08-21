@@ -39,8 +39,20 @@ cmd_line_args = (
 )
 
 try:
+    import jax.numpy as jnp
+except (ImportError, RuntimeError, AttributeError):
+    jnp = None
+try:
     import tensorflow as tf
 
+    _tf_version = float(".".join(tf.__version__.split(".")[0:2]))
+    if _tf_version >= 2.3:
+        # noinspection PyPep8Naming,PyUnresolvedReferences
+        from tensorflow.python.types.core import Tensor as tensor_type
+    else:
+        # noinspection PyPep8Naming
+        # noinspection PyProtectedMember,PyUnresolvedReferences
+        from tensorflow.python.framework.tensor_like import _TensorLike as tensor_type
     physical_devices = tf.config.list_physical_devices("GPU")
     for device in physical_devices:
         tf.config.experimental.set_memory_growth(device, True)
